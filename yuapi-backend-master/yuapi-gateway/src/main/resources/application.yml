@@ -1,0 +1,50 @@
+server:
+  port: 8090
+spring:
+  cloud:
+    gateway:
+      default-filters:
+      #这里做了流的染色处理，防止用户绕过网关访问api    全局过滤染色  //需要在客户端、模拟接口处进行判断，是否是从网关处来的请求
+      #可以加在请求头，也可以加在响应头上
+        - AddResponseHeader=source, yupi
+      routes:
+        - id: api_route
+          #路由转发地址
+          uri: http://localhost:8123
+          #predicates断言规则
+          predicates:
+            - Path=/api/**
+            #- Path=/api/{api_url}
+#        - id: add_request_header_route
+#          uri: http://localhost:8123
+#          predicates:
+#            - Path=/api/**
+#          filters:
+#            - AddRequestHeader=yupi, swag
+#            - AddRequestParameter=name, dog
+#            - name: CircuitBreaker
+#              args:
+#                name: myCircuitBreaker
+#                fallbackUri: forward:/fallback
+#        - id: yupi-fallback
+#          uri: https://yupi.icu
+#          predicates:
+#            - Path=/fallback
+
+#开启日志功能  trace级别是最低级别，就是所有日志都会展示
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          gateway: trace
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848
+
